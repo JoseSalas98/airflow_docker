@@ -1,0 +1,11 @@
+# Omitir el archivo .gitingnore y las carpetas:
+# dags
+# logs
+# plugins
+# psql_db
+
+!.gitignore
+!dags
+!logs
+!plugins
+!psql_db

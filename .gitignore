@@ -1,0 +1,12 @@
+# Ignora todo lo de la carpeta data, excepto los archivos:
+# dags/.gitingnore
+# logs/.gitingnore
+# plugins/.gitingnore
+# psql_db/.gitingnore
+
+data/*
+
+!data/dags/.gitignore
+!data/logs/.gitignore
+!data/plugins/.gitignore
+!data/psql_db/.gitignore
