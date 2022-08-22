@@ -1,2 +1,3 @@
-# Omite del track __pycache__
+# Ignoramos la carpeta __pycache__
+
 __pycache__
