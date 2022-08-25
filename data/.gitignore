@@ -5,6 +5,7 @@
 # psql_db
 
 !.gitignore
+!core
 !dags
 !logs
 !plugins

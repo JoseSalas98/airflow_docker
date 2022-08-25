@@ -6,6 +6,7 @@
 
 data/*
 
+!data/core/.gitignore
 !data/dags/.gitignore
 !data/logs/.gitignore
 !data/plugins/.gitignore
