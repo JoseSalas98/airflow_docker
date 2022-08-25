@@ -9,7 +9,7 @@ from airflow.operators.python_operator import PythonOperator
 from sqlalchemy import create_engine, exc, inspect
 from sqlalchemy_utils import database_exists
 
-# Disponibilizamos las variables de entorno 
+#Disponibilizamos las variables de entorno 
 config = AutoConfig()
 
 db_name = config("DB_NAME")
@@ -84,7 +84,7 @@ def start_connct():
                 engine = create_engine(db_string)
                 engine.connect()
                 insp_db_connect = inspect(engine)
-                if insp_db_connect.has_table("uba_kenedy"):
+                if insp_db_connect.has_table("uba_kenedy") and insp_db_connect.has_table("lat_sociales_cine"):
                     retry_flag = False
                 else:
                     retry_count += 1
