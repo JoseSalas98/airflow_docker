@@ -4,10 +4,13 @@
 # plugins/.gitingnore
 # psql_db/.gitingnore
 
+.env
 data/*
 
 !data/core/.gitignore
 !data/dags/.gitignore
+!data/files/.gitignore
 !data/logs/.gitignore
 !data/plugins/.gitignore
 !data/psql_db/.gitignore
+!data/psql_script/.gitignore

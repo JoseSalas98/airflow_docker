@@ -1,4 +1,4 @@
-# Ignoramo todo el contenido excepto el archivo .gitingnore
+# Ignoramos todo el contenido excepto el archivo .gitingnore
 
 *
 !.gitignore
