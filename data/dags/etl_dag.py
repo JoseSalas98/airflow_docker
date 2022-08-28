@@ -121,18 +121,24 @@ with DAG(
         tags = ["alkemy_acceleration_sptr01"],
         ) as dag:
         get_data_task = PythonOperator(
-                                       task_id = "get_data", 
-                                       python_callable = get_data, 
-                                       retries = 5, 
-                                       retry_delay = timedelta(minutes=5)
-                                          )
+                                        task_id = "get_data", 
+                                        python_callable = get_data,
+                                        op_kwargs = op_kwargs["get_data"],
+                                        retries = 5, 
+                                        retry_delay = timedelta(minutes=5),
+                                        dag = dag
+                                      )
         transform_data_task = PythonOperator(
                                             task_id = "transform_data", 
-                                            python_callable = transform_data
+                                            python_callable = transform_data,
+                                            op_kwargs = op_kwargs["transform_data"],
+                                            dag = dag
                                             )
         load_data_task = PythonOperator(
                                         task_id = "load_data", 
-                                        python_callable = load_data
+                                        python_callable = load_data,
+                                        op_kwargs = op_kwargs["load_data"],
+                                        dag = dag
                                        )
 
         get_data_task >> transform_data_task >> load_data_task
