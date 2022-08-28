@@ -19,8 +19,10 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKENDS: ${AIRFLOW__API__AUTH_BACKENDS}
   volumes:
     - dags:/opt/airflow/dags
+    - files:/opt/airflow/files
     - logs:/opt/airflow/logs
     - plugins:/opt/airflow/plugins
+    - psql_script:/opt/airflow/psql_script
 
 x-services-depends-on:
   &depends-on
@@ -121,12 +123,18 @@ volumes:
       driver_opts:
         type: none
         device: "./data/psql_db"
-        o: bind
+        o: bind 
     dags:
       driver: local
       driver_opts:
         type: none
         device: "./data/dags"
+        o: bind
+    files:
+      driver: local
+      driver_opts:
+        type: none
+        device: "./data/files"
         o: bind
     logs:
       driver: local
@@ -139,4 +147,10 @@ volumes:
       driver_opts:
         type: none
         device: "./data/plugins"
+        o: bind
+    psql_script:
+      driver: local
+      driver_opts:
+        type: none
+        device: "./data/psql_script"
         o: bind
