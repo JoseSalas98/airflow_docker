@@ -2,7 +2,7 @@
 from connect_dag import start_connct
 from confi import db_user
 from constans import LOG_DIR, SCHEMA_NAME
-from elt_funtions import get_table, transform_dts
+from elt_functions import get_table, transform_dts
 
 import logging
 from datetime import datetime
@@ -46,7 +46,7 @@ default_args = {
 
 #       Creamos las funciones que intervendrán en el proceso
 ##      Declaramos las inputs de la función
-schema_name = SCHEMA_NAME                               ##  get_data(schema_name, engine)
+schema_name = SCHEMA_NAME                                                   ##  get_data(schema_name, engine)
 engine = start_connct()                                 
 
 ##      Definimos los agumentos del python callable           
@@ -65,14 +65,14 @@ def get_data(
                                                         table_name, 
                                                         engine
                                                         )
-        logging.info(f"getting the data from {table_name}")
+        logging.info(f"getting the data from {table_name}")                 ## Llamamos al log oportunamente
     return extract_path_dict
 
 ##      Declaramos las inputs de la función
-path_dict = get_data(
+path_dict = get_data(                                                       ##  transform_data(schema_name, path_dict)
                         schema_name = SCHEMA_NAME, 
                         engine = engine
-                        )            ##  transform_data(schema_name, path_dict)
+                        )            
 
 ##      Definimos los agumentos del python callable           
 transform_data_kwargs = {
@@ -91,7 +91,7 @@ def transform_data(
                                                                 table_name, 
                                                                 path
                                                                 )
-        logging.info(f"transforming the data from {table_name}")
+        logging.info(f"transforming the data from {table_name}")        ## Llamamos al log oportunamente
     return transformed_path_dict
 
 
