@@ -5,6 +5,8 @@
 # psql_db/.gitingnore
 
 .env
+eda_preliminar.ipynb
+eda.ipynb
 data/*
 
 !data/core/.gitignore
