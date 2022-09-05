@@ -16,20 +16,15 @@ year = now.year
 month = now.month
 day = now.day
 date = f"{year}-{month:02d}-{day:02d}"                                      #   Establecemos los place holders
-today_date = date.format(                                               
-                        year = year, 
-                        month = month, 
-                        day = day
-                        )
+today_date = date.format(year = year, month = month, 
+                        day = day)
 
 #   Establecemos las configuración del log
-logging.basicConfig(
-                    filename = f"{LOG_DIR}/{today_date}-{db_user}.log",     #   Se generará un archivo .log el cual 
-                                                                            #   tendrá en el nombre el siguiente formato
+logging.basicConfig(filename = f"{LOG_DIR}/{today_date}-{db_user}.log",     #   Se generará un archivo .log el cual 
+                    level = "DEBUG")                                        #   tendrá en el nombre el siguiente formato
                                                                             #   %Y-%m-%d - nombre_logger(usuario de 
                                                                             #   la base de datos)
-                    level = "DEBUG"
-                    )
+                    
 
 
 # Definimos las propiedades del DAG
@@ -56,23 +51,20 @@ get_data_kwargs = {
                     }
 
 def get_data(
-                schema_name, 
-                engine
+            schema_name, 
+            engine
             ):
     extract_path_dict = {}
     for table_name in schema_name:
-        extract_path_dict[f"{table_name}"] = get_table(
-                                                        table_name, 
-                                                        engine
-                                                        )
+        extract_path_dict[f"{table_name}"] = get_table(table_name, 
+                                                       engine)
         logging.info(f"getting the data from {table_name}")                 ## Llamamos al log oportunamente
     return extract_path_dict
 
 ##      Declaramos las inputs de la función
-path_dict = get_data(                                                       ##  transform_data(schema_name, path_dict)
-                        schema_name = SCHEMA_NAME, 
-                        engine = engine
-                        )            
+path_dict = get_data(schema_name = SCHEMA_NAME, 
+                    engine = engine)                                        ##  transform_data(schema_name, path_dict)
+    
 
 ##      Definimos los agumentos del python callable           
 transform_data_kwargs = {
@@ -80,17 +72,14 @@ transform_data_kwargs = {
                         "path_dict" : path_dict
                         }
 
-def transform_data(
-                    schema_name, 
-                    path_dict
-                    ):
+def transform_data(schema_name, 
+                   path_dict):
     transformed_path_dict = {}
     for table_name in schema_name:
         path = path_dict[f"{table_name}"]
-        transformed_path_dict[f"{table_name}"] = transform_dts(
-                                                                table_name, 
-                                                                path
-                                                                )
+        transformed_path_dict[f"{table_name}"] = transform_dts(table_name, 
+                                                               path)                                                         
+                                                            
         logging.info(f"transforming the data from {table_name}")        ## Llamamos al log oportunamente
     return transformed_path_dict
 
@@ -120,25 +109,19 @@ with DAG(
         start_date = datetime(2022, 8, 23),
         tags = ["alkemy_acceleration_sptr01"],
         ) as dag:
-        get_data_task = PythonOperator(
-                                        task_id = "get_data", 
-                                        python_callable = get_data,
-                                        op_kwargs = op_kwargs["get_data"],
-                                        retries = 5, 
-                                        retry_delay = timedelta(minutes=5),
-                                        dag = dag
-                                      )
-        transform_data_task = PythonOperator(
-                                            task_id = "transform_data", 
-                                            python_callable = transform_data,
-                                            op_kwargs = op_kwargs["transform_data"],
-                                            dag = dag
-                                            )
-        load_data_task = PythonOperator(
-                                        task_id = "load_data", 
+        get_data_task = PythonOperator(task_id = "get_data", 
+                                       python_callable = get_data,
+                                       op_kwargs = op_kwargs["get_data"],
+                                       retries = 5, 
+                                       retry_delay = timedelta(minutes=5),
+                                       dag = dag)
+        transform_data_task = PythonOperator(task_id = "transform_data", 
+                                             python_callable = transform_data,
+                                             op_kwargs = op_kwargs["transform_data"],
+                                             dag = dag)
+        load_data_task = PythonOperator(task_id = "load_data", 
                                         python_callable = load_data,
                                         op_kwargs = op_kwargs["load_data"],
-                                        dag = dag
-                                       )
+                                        dag = dag)
 
         get_data_task >> transform_data_task >> load_data_task
