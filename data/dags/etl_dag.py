@@ -1,4 +1,4 @@
-# Importamos las dependencias necesarias
+#   Importamos las dependencias necesarias
 from fileinput import filename
 from connect_dag import start_connct
 from confi import db_user, BUKECT_NAME
@@ -26,29 +26,18 @@ logging.basicConfig(filename=f"{LOG_DIR}/{today_date}-{db_user}.log",  # Se gene
 #   %Y-%m-%d - nombre_logger(usuario de
 #   la base de datos)
 
-
-# Definimos las propiedades del DAG
-default_args = {
-    "owner": "airflow",
-    "depends_on_past": False,
-    "email": ["airflow@example.com"],
-    "email_on_failure": False,
-    "email_on_retry": False,
-    "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-}
-
-
-#       Creamos las funciones que intervendrán en el proceso
-# Declaramos las inputs de la función
+#   Creamos las funciones que intervendrán en el proceso
+#   Declaramos las inputs de la función
 schema_name = SCHEMA_NAME  # get_data(schema_name, engine)
 engine = start_connct()
 
-# Definimos los agumentos del python callable
+#   Definimos los agumentos del python callable
 get_data_kwargs = {
     "schema_name": schema_name,
     "engine": engine
 }
+
+#   Función para extracción de los datos
 
 
 def get_data(schema_name: list,
@@ -67,21 +56,22 @@ def get_data(schema_name: list,
     for table_name in schema_name:
         extract_path_dict[f"{table_name}"] = get_table(table_name,
                                                        engine)
-        # Llamamos al log oportunamente
+        #   Llamamos al log oportunamente
         logging.info(f"getting the data from {table_name}")
     return extract_path_dict
 
 
 # Declaramos las inputs de la función
-extract_path_dict = get_data(schema_name=SCHEMA_NAME,
-                             engine=engine)  # transform_data(schema_name, path_dict)
-
+extract_path_dict = get_data(schema_name=SCHEMA_NAME,  # transform_data(schema_name, path_dict)
+                             engine=engine)
 
 # Definimos los agumentos del python callable
 transform_data_kwargs = {
     "schema_name": schema_name,
     "path_dict": extract_path_dict
 }
+
+#   Función para transformación de los datos
 
 
 def transform_data(schema_name: list,
@@ -109,7 +99,7 @@ def transform_data(schema_name: list,
 
 
 # Declaramos las inputs de la función
-transformed_path_dict = transform_data(
+transformed_path_dict = transform_data(  # load_data(path_dict: dict, bucket_name: str)
     schema_name=SCHEMA_NAME, path_dict=extract_path_dict)
 bucket_name = BUKECT_NAME
 
@@ -118,6 +108,8 @@ load_data_kwargs = {
     "path_dict": transformed_path_dict,
     "bucket_name": bucket_name
 }
+
+#   Función para carga de los datos
 
 
 def load_data(path_dict: dict,
@@ -142,29 +134,66 @@ op_kwargs = {"get_data": get_data_kwargs,
              "load_data": load_data_kwargs
              }
 
+#   Función para crear dags
 
-# Definimos el DAG
-with DAG(
-        "elt_dag",
-        default_args=default_args,
-        description="DAG para el procesamiento y carga de datos a S3",
-        schedule_interval=timedelta(hours=1),
-        start_date=datetime(2022, 8, 23),
-        tags=["alkemy_acceleration_sptr01"],
-) as dag:
-    get_data_task = PythonOperator(task_id="get_data",
-                                   python_callable=get_data,
-                                   op_kwargs=op_kwargs["get_data"],
-                                   retries=5,
-                                   retry_delay=timedelta(minutes=5),
-                                   dag=dag)
-    transform_data_task = PythonOperator(task_id="transform_data",
-                                         python_callable=transform_data,
-                                         op_kwargs=op_kwargs["transform_data"],
-                                         dag=dag)
-    load_data_task = PythonOperator(task_id="load_data",
-                                    python_callable=load_data,
-                                    op_kwargs=op_kwargs["load_data"],
-                                    dag=dag)
 
-    get_data_task >> transform_data_task >> load_data_task
+def create_dag(dag_id: str,
+               schedule: str,
+               default_args: dict) -> object:
+    """Esta función genera dags dinamicamente.
+
+    Args:
+        dag_id (str): identificador del DAG.
+        schedule (str): frecuencia de ejecución del DAG.
+        default_args (dict): configuración del DAG.
+
+    Returns:
+        object: dag para ejecutar en airflow.
+    """
+    dag = DAG(dag_id=dag_id,
+              schedule_interval=schedule,
+              default_args=default_args)
+
+    with dag:
+        get_data_task = PythonOperator(task_id="get_data",
+                                       python_callable=get_data,
+                                       op_kwargs=op_kwargs["get_data"],
+                                       retries=5,
+                                       retry_delay=timedelta(minutes=5),
+                                       dag=dag)
+        transform_data_task = PythonOperator(task_id="transform_data",
+                                             python_callable=transform_data,
+                                             op_kwargs=op_kwargs["transform_data"],
+                                             dag=dag)
+        load_data_task = PythonOperator(task_id="load_data",
+                                        python_callable=load_data,
+                                        op_kwargs=op_kwargs["load_data"],
+                                        dag=dag)
+
+        get_data_task >> transform_data_task >> load_data_task
+
+    return dag
+
+
+#   Definimos los nombres de las tareas
+taks_names = ["get_data", "transform_data", "load_data"]
+
+#   Definimos las propiedades del DAG
+default_args = {
+    "owner": "airflow",
+    "depends_on_past": False,
+    "email": ["airflow@example.com"],
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+}
+
+"""" Constructor de dags"""
+for i in range(taks_names):
+    dag_id = 'DAG{}'.format(str(i))
+    schedule = '@daily'
+
+    globals()[dag_id] = create_dag(dag_id=dag_id,
+                                   schedule=schedule,
+                                   default_args=default_args)
