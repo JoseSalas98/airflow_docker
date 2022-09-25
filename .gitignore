@@ -4,9 +4,6 @@
 # plugins/.gitingnore
 # psql_db/.gitingnore
 
-.env
-eda_preliminar.ipynb
-eda.ipynb
 dag_dinamico.py
 data/*
 
