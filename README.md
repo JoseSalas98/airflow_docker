@@ -88,7 +88,7 @@
     </p>
 </body>
 
-![diagrama](./css_estilos/airflow_diagram.drawio.png)
+<img src="./css_estilos/airflow_diagram.drawio.png" style="float: center" width="500" height="612">
 
 [<p style="font-family: rubik"> Índice </p> ](#id0)
 
